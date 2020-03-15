@@ -10,31 +10,42 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.runTest"
+		"*",
+		"onCommand:extension.runTests",
+		"onCommand:extension.modifyConfigFile",
+		"workspaceContains:ccashTestConfig.json",
+		"onView:tests-explorer"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.runTest",
-				"title": "Ccash: Run Test"
+				"command": "extension.runTests",
+				"title": "Ccash: Run Tests"
+			},
+			{
+				"command": "extension.modifyConfigFile",
+				"title": "Ccash: Modify Config File"
 			}
 		],
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "test-explorer",
-					"title": "Test Explorer",
-					"icon": "media/test.png"
+					"id": "tests-explorer",
+					"title": "Tests Explorer",
+					"icon": "media/test.svg"
 				}
 			]
 		},
 		"views": {
-			"test-explorer": [
+			"tests-explorer": [
 				{
-					"id": "nodeDependencies",
-					"name": "Node Dependencies",
-					"when": "explorer"
+					"id": "tests",
+					"name": "Tests"
+				},
+				{
+					"id": "testsResults",
+					"name": "Tests Results"
 				}
 			]
 		}
