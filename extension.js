@@ -1,5 +1,3 @@
-const path = require('path');
-
 const vscode = require('vscode');
 const ccashTestConfig = "ccashTestConfig.json";
 
@@ -12,15 +10,22 @@ async function activate(context) {
 	
 	console.log('CcashUnit is started');
 	var configFilePath = await findCcashConfigFile();
-	configFilePath = vscode.Uri.parse(configFilePath).fsPath;
-	
-	//vscode.window.createTreeView("tests-explorer");
+	console.log(configFilePath);
+	var testsFolderURI = await GetTestsFolderURI(vscode.Uri.parse(configFilePath));
+	console.log(testsFolderURI);
+
+	// TODO: get the data
+	// TODO: create the view with the checkbox and all
+		// Create a visual studio file to keep whats check or not
+	//vscode.window.createTreeView("tests-explorer", option: {});
 	//vscode.window.registerTreeDataProvider();
 	
 
-	let modifyConfigFile = vscode.commands.registerCommand('extension.modifyConfigFile', function () {
+	let modifyConfigFile = vscode.commands.registerCommand('extension.modifyConfigFile', async function () {
 		if(configFilePath != undefined){
-			openFile(configFilePath);
+			var fileURI = vscode.Uri.file(configFilePath);
+			const file = await vscode.workspace.openTextDocument(fileURI);
+			await vscode.window.showTextDocument(file);
 		}
 		else{
 			vscode.window.showErrorMessage('File ccashTestConfig.json does not exist.');
@@ -37,7 +42,7 @@ async function activate(context) {
 		vscode.window.showInformationMessage('Tests successful!');
 	});
 
-	context.subscriptions.push(runTests, modifyConfigFile/*, createConfigFile*/);
+	context.subscriptions.push(runTests, modifyConfigFile);
 }
 exports.activate = activate;
 
@@ -47,14 +52,6 @@ function deactivate() {}
 module.exports = {
 	activate,
 	deactivate
-}
-
-async function openFile(filePath){
-	var fileURI = vscode.Uri.file(filePath);
-	const file = await vscode.workspace.openTextDocument(fileURI);
-	await vscode.window.showTextDocument(file);
-	
-	return true;
 }
 
 async function findCcashConfigFile(){
@@ -82,4 +79,11 @@ async function searchFile(currentDir){
 	}
 
 	return undefined;
+}
+
+async function GetTestsFolderURI(configFilePath){
+	var buff = await vscode.workspace.fs.readFile(configFilePath);
+	var configFileContent = buff.toString();
+	var test = JSON.parse(configFileContent);
+	return vscode.workspace.workspaceFolders[0].uri.fsPath + "/" + test["testFolderPath"];
 }
